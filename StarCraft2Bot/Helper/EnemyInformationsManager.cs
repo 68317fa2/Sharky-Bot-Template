@@ -117,31 +117,14 @@ namespace StarCraft2Bot.Helper
             return minerals;
         }
 
-        public float GetInformationSafety(Observation observation)
-        {
-            // frame: observation.GameLoop;
-
-            return 0;
-        }
-
-        public Tuple<float, float> GetApproximatedProducedEnemyMinerals(
-            ResponseObservation observation
-        )
+        public float GetApproximatedMaximumProducedEnemyMinerals(ResponseObservation observation)
         {
             // go trough the history of total units and calculate the total count of minerals
 
-            float minimumMinerals = 0;
-            float maximumMinerals = 0;
+            float minerals = 0;
 
             if (EnemyUnitApproximationService.LastTotalUnits.ContainsKey(UnitTypes.TERRAN_SCV))
             {
-                foreach (
-                    var item in EnemyUnitApproximationService.LastTotalUnits[UnitTypes.TERRAN_SCV]
-                )
-                {
-                    Console.WriteLine("List: " + item.Key + " " + item.Value);
-                }
-
                 var updateFrames = EnemyUnitApproximationService
                     .LastTotalUnits[UnitTypes.TERRAN_SCV]
                     .Keys.OrderBy(u => u);
@@ -158,8 +141,8 @@ namespace StarCraft2Bot.Helper
                     bool nextBreak = true;
 
                     if (
-                        updateFrames.Count() > i + 1
-                        && updateFrames.ElementAt(i + 1) <= currentUpdateFrame
+                        updateFrames.Count() >= i + 1
+                        && updateFrames.ElementAt(i + 1) < observation.Observation.GameLoop
                     )
                     {
                         nextFrame = updateFrames.ElementAt(i + 1);
@@ -170,43 +153,68 @@ namespace StarCraft2Bot.Helper
                         FrameToTimeConverter.GetTime((int)nextFrame)
                         - FrameToTimeConverter.GetTime((int)currentUpdateFrame);
 
-                    // float mapUnsafetyFactor = 0.3F;
-                    float mineralsPerMinute = 50;
-                    // float mineralsPerTwelveSeconds = 10;
+                    float mineralsPerMinute = 45;
 
                     // https://tl.net/forum/sc2-strategy/140055-scientifically-measuring-mining-speed
-                    // SharkyUnitData.UnitData[UnitTypes.TERRAN_SCV]
 
-
-                    minimumMinerals +=
-                        (float)timeSpan.TotalMinutes * knownSCVCount * mineralsPerMinute;
-                    // maximumMinerals +=
-                    //     GetSCVCalculationSum((float)timeSpan.TotalSeconds, knownSCVCount, 1)
-                    //     * mineralsPerTwelveSeconds;
-                    // maximumMinerals += (float) timeSpan.TotalMinutes * knownSCVCount * (1 + MapMemoryService.GetUnexploredPercentage(nextFrame) * mapUnsafetyFactor) * mineralsPerMinute;
-                    // Console.WriteLine("" + minimumMinerals + "  " + maximumMinerals + "  " + MapMemoryService.GetUnexploredPercentage(nextFrame));
+                    minerals += (float)timeSpan.TotalMinutes * knownSCVCount * mineralsPerMinute;
 
                     if (nextBreak)
                         break;
                 }
             }
 
-            return new Tuple<float, float>(minimumMinerals, maximumMinerals);
+            return minerals;
         }
 
-        private float GetSCVCalculationSum(float time, float startSCVs, float baseCount)
+        public float GetApproximatedMinimumProducedEnemyMinerals(ResponseObservation observation)
         {
-            // float timeCeil = (float) Math.Ceiling(time / 12f);
-            float timeCeil = (float)time / 12f;
-            // Console.WriteLine("Time: " + time);
-            // Console.WriteLine("Ceil: " + timeCeil);
-            // Console.WriteLine("Sum: " + GetSum(timeCeil - 1));
-            return GetSum(timeCeil - 1) * baseCount + startSCVs * (float)timeCeil;
-        }
+            // go trough the history of total units and calculate the total count of minerals
 
-        private float GetSum(float n)
-        {
-            return 0.5f * n * (n + 1);
+            float minerals = 0;
+
+            if (EnemyUnitMemoryService.LastTotalUnits.ContainsKey(UnitTypes.TERRAN_SCV))
+            {
+                var updateFrames = EnemyUnitMemoryService
+                    .LastTotalUnits[UnitTypes.TERRAN_SCV]
+                    .Keys.OrderBy(u => u);
+
+                for (int i = 0; i < updateFrames.Count(); i++)
+                {
+                    uint currentUpdateFrame = updateFrames.ElementAt(i);
+                    uint nextFrame = observation.Observation.GameLoop;
+
+                    int knownSCVCount = EnemyUnitMemoryService.LastTotalUnits[UnitTypes.TERRAN_SCV][
+                        currentUpdateFrame
+                    ];
+
+                    bool nextBreak = true;
+
+                    if (
+                        updateFrames.Count() >= i + 1
+                        && updateFrames.ElementAt(i + 1) < observation.Observation.GameLoop
+                    )
+                    {
+                        nextFrame = updateFrames.ElementAt(i + 1);
+                        nextBreak = false;
+                    }
+
+                    TimeSpan timeSpan =
+                        FrameToTimeConverter.GetTime((int)nextFrame)
+                        - FrameToTimeConverter.GetTime((int)currentUpdateFrame);
+
+                    float mineralsPerMinute = 45;
+
+                    // https://tl.net/forum/sc2-strategy/140055-scientifically-measuring-mining-speed
+
+                    minerals += (float)timeSpan.TotalMinutes * knownSCVCount * mineralsPerMinute;
+
+                    if (nextBreak)
+                        break;
+                }
+            }
+
+            return minerals;
         }
 
         public float GetApproximatedProducedEnemyGas(ResponseObservation observation)
@@ -300,3 +308,26 @@ namespace StarCraft2Bot.Helper
         }
     }
 }
+
+// Old calculation of maximum minerals:
+// private float GetSCVCalculationSum(float time, float startSCVs, float baseCount)
+// {
+//     // maximumMinerals +=
+//     //     GetSCVCalculationSum((float)timeSpan.TotalSeconds, knownSCVCount, 1)
+//     //     * mineralsPerTwelveSeconds;
+//     // maximumMinerals += (float) timeSpan.TotalMinutes * knownSCVCount * (1 + MapMemoryService.GetUnexploredPercentage(nextFrame) * mapUnsafetyFactor) * mineralsPerMinute;
+//     // Console.WriteLine("" + minimumMinerals + "  " + maximumMinerals + "  " + MapMemoryService.GetUnexploredPercentage(nextFrame));
+
+
+//     // float timeCeil = (float) Math.Ceiling(time / 12f);
+//     float timeCeil = (float)time / 12f;
+//     // Console.WriteLine("Time: " + time);
+//     // Console.WriteLine("Ceil: " + timeCeil);
+//     // Console.WriteLine("Sum: " + GetSum(timeCeil - 1));
+//     return GetSum(timeCeil - 1) * baseCount + startSCVs * (float)timeCeil;
+// }
+
+// private float GetSum(float n)
+// {
+//     return 0.5f * n * (n + 1);
+// }

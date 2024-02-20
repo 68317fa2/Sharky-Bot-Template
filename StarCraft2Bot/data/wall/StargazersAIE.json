@@ -1,0 +1,202 @@
+﻿[
+  {
+    "BasePosition": {
+      "X": 13.5,
+      "HasX": true,
+      "Y": 99.5,
+      "HasY": true
+    },
+    "WallSegments": [
+      {
+        "Position": {
+          "X": 23.5,
+          "HasX": true,
+          "Y": 84.5,
+          "HasY": true
+        },
+        "Size": 3.0
+      },
+      {
+        "Position": {
+          "X": 21.5,
+          "HasX": true,
+          "Y": 87.5,
+          "HasY": true
+        },
+        "Size": 3.0
+      }
+    ],
+    "Pylons": [
+      {
+        "X": 25.0,
+        "HasX": true,
+        "Y": 88.0,
+        "HasY": true
+      }
+    ],
+    "Door": {
+      "X": 20.0,
+      "HasX": true,
+      "Y": 87.0,
+      "HasY": true
+    },
+    "Block": {
+      "X": 19.0,
+      "HasX": true,
+      "Y": 86.0,
+      "HasY": true
+    },
+    "Production": [
+      {
+        "X": 22.5,
+        "HasX": true,
+        "Y": 86.5,
+        "HasY": true
+      }
+    ],
+    "Depots": [
+      {
+        "X": 23.0,
+        "HasX": true,
+        "Y": 84.0,
+        "HasY": true
+      },
+      {
+        "X": 20.0,
+        "HasX": true,
+        "Y": 87.0,
+        "HasY": true
+      }
+    ],
+    "FullDepotWall": [
+      {
+        "X": 23.0,
+        "HasX": true,
+        "Y": 84.0,
+        "HasY": true
+      },
+      {
+        "X": 22.0,
+        "HasX": true,
+        "Y": 86.0,
+        "HasY": true
+      },
+      {
+        "X": 20.0,
+        "HasX": true,
+        "Y": 87.0,
+        "HasY": true
+      }
+    ],
+    "RampCenter": {
+      "X": 19.5,
+      "HasX": true,
+      "Y": 83.5,
+      "HasY": true
+    }
+  },
+  {
+    "BasePosition": {
+      "X": 134.5,
+      "HasX": true,
+      "Y": 99.5,
+      "HasY": true
+    },
+    "WallSegments": [
+      {
+        "Position": {
+          "X": 127.5,
+          "HasX": true,
+          "Y": 87.5,
+          "HasY": true
+        },
+        "Size": 3.0
+      },
+      {
+        "Position": {
+          "X": 124.5,
+          "HasX": true,
+          "Y": 85.5,
+          "HasY": true
+        },
+        "Size": 3.0
+      }
+    ],
+    "Pylons": [
+      {
+        "X": 123.0,
+        "HasX": true,
+        "Y": 89.0,
+        "HasY": true
+      }
+    ],
+    "Door": {
+      "X": 125.5,
+      "HasX": true,
+      "Y": 83.5,
+      "HasY": true
+    },
+    "Block": {
+      "X": 124.0,
+      "HasX": true,
+      "Y": 83.0,
+      "HasY": true
+    },
+    "Production": [
+      {
+        "X": 125.5,
+        "HasX": true,
+        "Y": 86.5,
+        "HasY": true
+      }
+    ],
+    "ProductionWithAddon": [
+      {
+        "X": 123.5,
+        "HasX": true,
+        "Y": 86.5,
+        "HasY": true
+      }
+    ],
+    "Depots": [
+      {
+        "X": 128.0,
+        "HasX": true,
+        "Y": 87.0,
+        "HasY": true
+      },
+      {
+        "X": 125.0,
+        "HasX": true,
+        "Y": 84.0,
+        "HasY": true
+      }
+    ],
+    "FullDepotWall": [
+      {
+        "X": 128.0,
+        "HasX": true,
+        "Y": 87.0,
+        "HasY": true
+      },
+      {
+        "X": 125.0,
+        "HasX": true,
+        "Y": 84.0,
+        "HasY": true
+      },
+      {
+        "X": 126.0,
+        "HasX": true,
+        "Y": 86.0,
+        "HasY": true
+      }
+    ],
+    "RampCenter": {
+      "X": 128.0,
+      "HasX": true,
+      "Y": 84.0,
+      "HasY": true
+    }
+  }
+]

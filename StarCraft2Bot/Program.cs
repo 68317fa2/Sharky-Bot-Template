@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
+using System.Net.NetworkInformation;
 using SC2APIProtocol;
 using Sharky;
 using StarCraft2Bot.Bot;
 using StarCraft2Bot.Helper;
-using System.Net.NetworkInformation;
 
 namespace StarCraft2Bot
 {
@@ -20,11 +20,15 @@ namespace StarCraft2Bot
             // form.  We will look through the list, and if our port we would like to use
             // in our TcpClient is occupied, we will set isAvailable to false.
             IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
-            TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
+            TcpConnectionInformation[] tcpConnInfoArray =
+                ipGlobalProperties.GetActiveTcpConnections();
 
             foreach (TcpConnectionInformation tcpi in tcpConnInfoArray)
             {
-                if (tcpi.LocalEndPoint.Port >= startupPort && tcpi.LocalEndPoint.Port <= startupPort + 5)
+                if (
+                    tcpi.LocalEndPoint.Port >= startupPort
+                    && tcpi.LocalEndPoint.Port <= startupPort + 5
+                )
                 {
                     isAvailable = false;
                     break;
@@ -38,15 +42,29 @@ namespace StarCraft2Bot
         {
             var gameConnection = new GameConnection();
             var defaultSharkyBot = new BaseBot(gameConnection);
-            defaultSharkyBot.BuildChoices[Race.Terran] = new BuildChoicesManager(defaultSharkyBot).GetBuildChoices();
-            var exampleBot = defaultSharkyBot.CreateBot(defaultSharkyBot.Managers, defaultSharkyBot.DebugService);
-            
-            while(!CheckPort(startupPort))
+            defaultSharkyBot.BuildChoices[Race.Terran] = new BuildChoicesManager(
+                defaultSharkyBot
+            ).GetBuildChoices();
+            var exampleBot = defaultSharkyBot.CreateBot(
+                defaultSharkyBot.Managers,
+                defaultSharkyBot.DebugService
+            );
+
+            while (!CheckPort(startupPort))
                 startupPort += 5;
 
             var map = maps.GetRandomEntry();
 
-            return gameConnection.RunSinglePlayer(exampleBot, $"{Enum.GetName(map)}AIE.SC2Map", Race.Terran, Race.Terran, Difficulty.CheatInsane, AIBuild.RandomBuild, startupPort, realTime: false);
+            return gameConnection.RunSinglePlayer(
+                exampleBot,
+                $"{Enum.GetName(map)}AIE.SC2Map",
+                Race.Terran,
+                Race.Terran,
+                Difficulty.VeryEasy,
+                AIBuild.Macro,
+                startupPort,
+                realTime: false
+            );
         }
 
         static void Main(string[] args)
@@ -70,7 +88,7 @@ namespace StarCraft2Bot
                 Map.Moondance
             };
 
-            if(endless)
+            if (endless)
                 Console.WriteLine("Running in endless mode...");
 
             do
@@ -81,7 +99,7 @@ namespace StarCraft2Bot
                 {
                     Thread.Sleep(50);
                 }
-              
+
                 Thread.Sleep(500);
                 game.Result.Kill();
             } while (endless);

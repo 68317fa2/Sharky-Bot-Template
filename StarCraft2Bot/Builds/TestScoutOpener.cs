@@ -1,4 +1,4 @@
-﻿using SC2APIProtocol;
+using SC2APIProtocol;
 using Sharky;
 using Sharky.Builds;
 using Sharky.Chat;
@@ -20,6 +20,7 @@ namespace StarCraft2Bot.Builds
     {
         private EnemyInformationsManager EnemyInformationsManager;
         private EnemyUnitMemoryService UnitMemoryService;
+        private EnemyUnitApproximationService EnemyUnitApproximationService;
 
         private Queue<BuildAction>? BuildOrder { get; set; }
 
@@ -40,6 +41,7 @@ namespace StarCraft2Bot.Builds
             defaultSharkyBot.MicroTaskData[typeof(AttackTask).Name] = advancedAttackTask;
 
             UnitMemoryService = defaultSharkyBot.EnemyUnitMemoryService;
+            EnemyUnitApproximationService = defaultSharkyBot.EnemyUnitApproximationService;
 
             EnemyInformationsManager = new EnemyInformationsManager(
                 UnitCountService,
@@ -58,15 +60,52 @@ namespace StarCraft2Bot.Builds
             base.StartBuild(frame);
 
             BuildOptions.StrictGasCount = true;
-            BuildOptions.StrictSupplyCount = true;
-            BuildOptions.StrictWorkerCount = true;
+            BuildOptions.StrictSupplyCount = false;
+            BuildOptions.StrictWorkerCount = false;
+
+            MacroData.DesiredUnitCounts[UnitTypes.TERRAN_SCV] = 90;
+            MacroData.DesiredUnitCounts[UnitTypes.TERRAN_BARRACKS] = 1;
+            // MacroData.DesiredMorphCounts[UnitTypes.TERRAN_ORBITALCOMMAND] = 4;
+
+            //MacroData.DesiredUnitCounts[UnitTypes.TERRAN_REAPER] = 5;
 
             BuildOrder = new Queue<BuildAction>();
-            MacroData.DesiredUnitCounts[UnitTypes.TERRAN_SCV] = 12;
-            //MacroData.DesiredUnitCounts[UnitTypes.TERRAN_REAPER] = 5;
 
             MicroTaskData[typeof(WorkerScoutTask).Name].Enable();
 
+            BuildOrder.Enqueue(
+                new BuildAction(
+                    new UnitCompletedCountCondition(UnitTypes.TERRAN_SCV, 16, UnitCountService),
+                    new ProductionStructureDesire(UnitTypes.TERRAN_COMMANDCENTER, 2, MacroData)
+                )
+            );
+            BuildOrder.Enqueue(
+                new BuildAction(
+                    new UnitCountCondition(UnitTypes.TERRAN_COMMANDCENTER, 2, UnitCountService),
+                    new CustomDesire(() =>
+                    {
+                        BuildOptions.StrictGasCount = false;
+                    })
+                )
+            );
+            BuildOrder.Enqueue(
+                new BuildAction(
+                    new UnitCompletedCountCondition(UnitTypes.TERRAN_SCV, 32, UnitCountService),
+                    new ProductionStructureDesire(UnitTypes.TERRAN_COMMANDCENTER, 3, MacroData)
+                )
+            );
+            BuildOrder.Enqueue(
+                new BuildAction(
+                    new UnitCompletedCountCondition(UnitTypes.TERRAN_SCV, 48, UnitCountService),
+                    new ProductionStructureDesire(UnitTypes.TERRAN_COMMANDCENTER, 4, MacroData)
+                )
+            );
+            BuildOrder.Enqueue(
+                new BuildAction(
+                    new UnitCompletedCountCondition(UnitTypes.TERRAN_SCV, 64, UnitCountService),
+                    new ProductionStructureDesire(UnitTypes.TERRAN_COMMANDCENTER, 5, MacroData)
+                )
+            );
             //foreach (UnitCommander commander in MicroTaskData[typeof(Micro).Name])
             //{
             //    if (commander.CommanderState == CommanderState.None)
@@ -99,7 +138,9 @@ namespace StarCraft2Bot.Builds
             Console.WriteLine("Frame: " + observation.Observation.GameLoop + "\n======");
             Console.WriteLine(
                 "Mineralapproximation: "
-                    + EnemyInformationsManager.GetApproximatedProducedEnemyMinerals(observation)
+                    + EnemyInformationsManager.GetApproximatedMaximumProducedEnemyMinerals(
+                        observation
+                    )
             );
 
             Console.WriteLine("Seen:\n=====");
@@ -108,27 +149,42 @@ namespace StarCraft2Bot.Builds
                 Console.WriteLine(UnitMemoryService.CurrentTotalUnits[key] + "x " + key.ToString());
             }
 
-            var approx = EnemyInformationsManager.GetApproximatedProducedEnemyUnits(
-                EnemyInformationsManager.GetApproximatedProducedEnemyMinerals(observation).Item2
-            );
+            // Console.WriteLine("Approximated SCVs:\n=============");
+            // foreach (var item in EnemyUnitApproximationService.LastTotalUnits[UnitTypes.TERRAN_SCV])
+            // {
+            //     Console.WriteLine(item.Key + ": " + item.Value + "x");
+            // }
+            // Console.WriteLine("Approximated CCs:\n=============");
+            // foreach (
+            //     var item in EnemyUnitApproximationService.LastTotalUnits[
+            //         UnitTypes.TERRAN_COMMANDCENTER
+            //     ]
+            // )
+            // {
+            //     Console.WriteLine(item.Key + ": " + item.Value + "x");
+            // }
 
-            Console.WriteLine("Approximated:\n=============");
+            // Console.WriteLine("Approximated Army:\n=============");
 
-            foreach (var key in approx.Keys)
-            {
-                Console.WriteLine(approx[key] + "x " + key.ToString());
-            }
+            // foreach (var key in approx.Keys)
+            // {
+            //     Console.WriteLine(approx[key] + "x " + key.ToString());
+            // }
 
             // Console.WriteLine(EnemyInformationsManager.GetVisibleAreaPercentage() + "%");
 
+            if (BuildOrder.Count == 0)
+            {
+                return;
+            }
 
-            //var nextAction = BuildOrder.Peek();
+            var nextAction = BuildOrder.Peek();
 
-            //if (nextAction.AreConditionsFulfilled())
-            //{
-            //    nextAction.EnforceDesires();
-            //    BuildOrder.Dequeue();
-            //}
+            if (nextAction.AreConditionsFulfilled())
+            {
+                nextAction.EnforceDesires();
+                BuildOrder.Dequeue();
+            }
         }
 
         public override bool Transition(int frame)
