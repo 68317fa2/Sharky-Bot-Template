@@ -1,9 +1,9 @@
-﻿using Sharky.MicroControllers;
+﻿using SC2APIProtocol;
 using Sharky;
-using SC2APIProtocol;
 using Sharky.Builds;
-using StarCraft2Bot.Builds;
+using Sharky.MicroControllers;
 using StarCraft2Bot.Bot;
+using StarCraft2Bot.Builds;
 
 namespace StarCraft2Bot
 {
@@ -15,12 +15,16 @@ namespace StarCraft2Bot
         public BuildChoicesManager(BaseBot newDefaultSharkyBot)
         {
             defaultSharkyBot = newDefaultSharkyBot;
-            scvMicroController = new IndividualMicroController(newDefaultSharkyBot, newDefaultSharkyBot.SharkyAdvancedPathFinder, MicroPriority.JustLive, false);
+            scvMicroController = new IndividualMicroController(
+                newDefaultSharkyBot,
+                newDefaultSharkyBot.SharkyAdvancedPathFinder,
+                MicroPriority.JustLive,
+                false
+            );
         }
 
         public BuildChoices GetBuildChoices()
         {
-
             var reaperCheese = new ReaperOpener(defaultSharkyBot, scvMicroController);
             var saltyMarines = new SaltyMarines(defaultSharkyBot);
             var threeCC = new ThreeCC(defaultSharkyBot);
@@ -36,10 +40,7 @@ namespace StarCraft2Bot
                 [testScoutOpener.Name()] = testScoutOpener
             };
 
-            var transitions = new List<List<string>>
-            {
-                new() { saltyMarines.Name() }
-            };
+            var transitions = new List<List<string>> { new() { saltyMarines.Name() } };
 
             var openers = new List<List<string>>
             {

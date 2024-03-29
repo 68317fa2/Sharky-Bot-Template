@@ -60,7 +60,7 @@ namespace StarCraft2Bot
                 $"{Enum.GetName(map)}AIE.SC2Map",
                 Race.Terran,
                 Race.Terran,
-                Difficulty.VeryEasy,
+                Difficulty.CheatInsane,
                 AIBuild.Macro,
                 startupPort,
                 realTime: false
@@ -81,11 +81,11 @@ namespace StarCraft2Bot
             var maps = new List<Map>()
             {
                 Map.InsideAndOut,
-                Map.Stargazers,
+                // Map.Stargazers,
                 // Map.Hardwire,
-                Map.Waterfall,
-                Map.Berlingrad,
-                Map.Moondance
+                // Map.Waterfall,
+                // Map.Berlingrad,
+                // Map.Moondance
             };
 
             if (endless)

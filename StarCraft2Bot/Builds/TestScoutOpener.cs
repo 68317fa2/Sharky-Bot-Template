@@ -138,7 +138,7 @@ namespace StarCraft2Bot.Builds
             Console.WriteLine("Frame: " + observation.Observation.GameLoop + "\n======");
             Console.WriteLine(
                 "Mineralapproximation: "
-                    + EnemyInformationsManager.GetApproximatedMaximumProducedEnemyMinerals(
+                    + EnemyInformationsManager.GetApproximatedAverageProducedEnemyMinerals(
                         observation
                     )
             );

@@ -117,7 +117,7 @@ namespace StarCraft2Bot.Helper
             return minerals;
         }
 
-        public float GetApproximatedMaximumProducedEnemyMinerals(ResponseObservation observation)
+        public float GetApproximatedAverageProducedEnemyMinerals(ResponseObservation observation)
         {
             // go trough the history of total units and calculate the total count of minerals
 
@@ -138,7 +138,7 @@ namespace StarCraft2Bot.Helper
                         UnitTypes.TERRAN_SCV
                     ][currentUpdateFrame];
 
-                    bool nextBreak = true;
+                    bool end = true;
 
                     if (
                         updateFrames.Count() >= i + 1
@@ -146,20 +146,21 @@ namespace StarCraft2Bot.Helper
                     )
                     {
                         nextFrame = updateFrames.ElementAt(i + 1);
-                        nextBreak = false;
+                        end = false;
                     }
 
                     TimeSpan timeSpan =
                         FrameToTimeConverter.GetTime((int)nextFrame)
                         - FrameToTimeConverter.GetTime((int)currentUpdateFrame);
 
-                    float mineralsPerMinute = 45;
+                    float mineralsPerMinute = 60;
 
                     // https://tl.net/forum/sc2-strategy/140055-scientifically-measuring-mining-speed
 
-                    minerals += (float)timeSpan.TotalMinutes * knownSCVCount * mineralsPerMinute;
+                    minerals +=
+                        (float)timeSpan.TotalMinutes * knownSCVCount * 16 / 6 * mineralsPerMinute;
 
-                    if (nextBreak)
+                    if (end)
                         break;
                 }
             }
@@ -188,7 +189,7 @@ namespace StarCraft2Bot.Helper
                         currentUpdateFrame
                     ];
 
-                    bool nextBreak = true;
+                    bool end = true;
 
                     if (
                         updateFrames.Count() >= i + 1
@@ -196,62 +197,26 @@ namespace StarCraft2Bot.Helper
                     )
                     {
                         nextFrame = updateFrames.ElementAt(i + 1);
-                        nextBreak = false;
+                        end = false;
                     }
 
                     TimeSpan timeSpan =
                         FrameToTimeConverter.GetTime((int)nextFrame)
                         - FrameToTimeConverter.GetTime((int)currentUpdateFrame);
 
-                    float mineralsPerMinute = 45;
+                    float mineralsPerMinute = 60;
 
                     // https://tl.net/forum/sc2-strategy/140055-scientifically-measuring-mining-speed
 
-                    minerals += (float)timeSpan.TotalMinutes * knownSCVCount * mineralsPerMinute;
+                    minerals +=
+                        (float)timeSpan.TotalMinutes * knownSCVCount * 16 / 6 * mineralsPerMinute;
 
-                    if (nextBreak)
+                    if (end)
                         break;
                 }
             }
 
             return minerals;
-        }
-
-        public float GetApproximatedProducedEnemyGas(ResponseObservation observation)
-        {
-            // go trough the history of total units and calculate the total count of gas
-
-            float minimumGas = 0;
-
-            if (EnemyUnitMemoryService.LastTotalUnits.ContainsKey(UnitTypes.TERRAN_SCV))
-            {
-                var updateFrames = EnemyUnitMemoryService
-                    .LastTotalUnits[UnitTypes.TERRAN_SCV]
-                    .Keys.OrderBy(u => u);
-
-                for (int i = 0; i < updateFrames.Count(); i++)
-                {
-                    uint currentUpdateFrame = updateFrames.ElementAt(i);
-                    uint nextFrame = observation.Observation.GameLoop;
-
-                    int knownSCVCount = EnemyUnitMemoryService.LastTotalUnits[UnitTypes.TERRAN_SCV][
-                        currentUpdateFrame
-                    ];
-
-                    if (updateFrames.Count() > i + 1)
-                    {
-                        nextFrame = updateFrames.ElementAt(i + 1);
-                    }
-
-                    TimeSpan timeSpan =
-                        FrameToTimeConverter.GetTime((int)nextFrame)
-                        - FrameToTimeConverter.GetTime((int)currentUpdateFrame);
-
-                    minimumGas += (float)timeSpan.TotalMinutes * knownSCVCount * 39;
-                }
-            }
-
-            return minimumGas;
         }
 
         public Dictionary<UnitTypes, int> GetApproximatedProducedEnemyUnits(float minerals)
